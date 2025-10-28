@@ -1,0 +1,41 @@
+shoko:
+  base_url: ${SHOKO_URL}
+  api_key: ${SHOKO_API_KEY}
+  include_data_from: [AniDB]
+  collecting_only: false
+  page_size: 100
+
+qbittorrent:
+  url: ${QBIT_URL}
+  username: ${QBIT_USERNAME}
+  password: ${QBIT_PASSWORD}
+  category_prefix: anime
+  save_root: ${SAVE_ROOT}
+  path_template: "{save_root}/{series}/Season {season2}"
+  tags: [auto, shoko]
+
+search:
+  provider: nyaa
+  nyaa:
+    users: [Tsundere-Raws, Arcedo]
+    rss_urls: []  # laisse vide pour générer depuis users
+    rate_limit_seconds: 3
+    preferred:
+      language: VOSTFR
+      qualities: [1080p, 720p]
+      sources: [CR, ADN, AMZN]
+    query_suffix: ""
+  alt_title_languages: [romaji, japanese]
+
+cache:
+  backend: sqlite
+  path: .cache/shoko_auto_torrent.db
+  ttl_hours: 24
+
+notify:
+  discord_webhook_url: null
+
+general:
+  dry_run: true
+  max_items: 10
+  log_level: INFO
