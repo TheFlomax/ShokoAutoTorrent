@@ -2,7 +2,7 @@
 
 Automatise la recherche et le téléchargement d'épisodes manquants depuis Shoko vers qBittorrent en privilégiant les releases Tsundere-Raws sur Nyaa.si.
 
-🚀 **[Guide de démarrage rapide](QUICKSTART.md)** | 🐳 **[Guide Docker complet](DOCKER.md)**
+📖 Ce README est la source de vérité. 🐳 Détails Docker avancés: voir [DOCKER.md](DOCKER.md)
 
 ## Prérequis
 - Python 3.10+
@@ -42,13 +42,14 @@ make logs
 
 **Notes:**
 - Si vous devez utiliser `sudo` avec Docker, décommentez les lignes `DOCKER` et `DOCKER_COMPOSE` dans le Makefile
-- En mode dry-run (par défaut), rien ne sera ajouté à qBittorrent. Désactivez-le dans `config.yaml` pour un usage réel
+- En mode dry-run (par défaut), rien ne sera ajouté à qBittorrent. Pour désactiver le dry-run, définissez `DRY_RUN=false` dans votre environnement (ex: `.env` pour Docker, ou `export DRY_RUN=false` avant `python main.py`).
 
 ## Configuration
 Copiez `config.yaml` et renseignez les variables d'environnement pour les secrets:
 - SHOKO_API_KEY
 - QBIT_USERNAME
 - QBIT_PASSWORD
+- DRY_RUN (optionnel, valeur par défaut: `true`) — mettez `false` pour activer les ajouts réels
 
 Adaptez `qbittorrent.url`, `save_root`, les préférences de recherche (langue, qualité, sources), etc.
 
@@ -72,7 +73,8 @@ docker-compose down
 ```
 
 ### Options
-- `--dry-run` n'ajoute rien dans qBittorrent
+- `--dry-run` force le mode simulation (prioritaire sur la config/env)
+- `DRY_RUN` (variable d'environnement, lue via `config.yaml`) contrôle le comportement par défaut (sans flag CLI). Par défaut: `true`.
 - `--limit` limite le nombre d'épisodes traités
 - `--config` spécifie le fichier de configuration (à utiliser hors Docker)
 

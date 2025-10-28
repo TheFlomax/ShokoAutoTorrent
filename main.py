@@ -30,6 +30,22 @@ def expand_env_vars(obj):
     return obj
 
 
+def to_bool(value, default=False) -> bool:
+    if isinstance(value, bool):
+        return value
+    if value is None:
+        return default
+    if isinstance(value, str):
+        s = value.strip().lower()
+        if s == "":
+            return default
+        if s in ("1", "true", "yes", "on"):  # common truthy
+            return True
+        if s in ("0", "false", "no", "off"):  # common falsy
+            return False
+    return bool(value)
+
+
 def load_config(path: Path) -> dict:
     with path.open("r", encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
@@ -53,7 +69,9 @@ def main():
     setup_logging(level=log_level)
     logger = logging.getLogger("main")
 
-    dry_run = args.dry_run or bool(cfg.get("general", {}).get("dry_run", False))
+    # DRY-RUN: CLI flag overrides config/env; default True if unset
+    dry_run_cfg = cfg.get("general", {}).get("dry_run", None)
+    dry_run = args.dry_run or to_bool(dry_run_cfg, default=True)
     max_items = args.limit or int(cfg.get("general", {}).get("max_items", 10))
 
     cache_path = Path(cfg.get("cache", {}).get("path", ".cache/shoko_auto_torrent.db"))

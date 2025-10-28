@@ -20,6 +20,9 @@ services:
       
       # Save path for downloads
       - SAVE_ROOT=${SAVE_ROOT:-/data/anime}
+
+      # App behavior
+      - DRY_RUN=${DRY_RUN:-true}
     
     volumes:
       # Persistent cache
