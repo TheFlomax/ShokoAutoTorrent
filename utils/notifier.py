@@ -19,4 +19,5 @@ class Notifier:
                 'content': f"❗ {title}\n```\n{details}\n```"
             }, timeout=15)
         except Exception as e:
-            self.logger.debug("Discord notify failed: %s", e)
+            from utils.i18n import t
+            self.logger.debug(t("log.discord_notify_failed"), e)

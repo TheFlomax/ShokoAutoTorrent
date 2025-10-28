@@ -39,3 +39,6 @@ general:
   dry_run: ${DRY_RUN}
   max_items: 10
   log_level: INFO
+  language: fr  # fr or en
+  # Intervalle planifié en heures (défaut 24 si non défini)
+  schedule_hours: ${SCHEDULE_INTERVAL_HOURS}

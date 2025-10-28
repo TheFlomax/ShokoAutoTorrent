@@ -21,7 +21,8 @@ class QbitClient:
 
     def add_magnet(self, magnet_or_url: str, save_path: Optional[str] = None, category: Optional[str] = None, tags: Optional[str] = None):
         if self.dry_run:
-            self.logger.info("[DRY-RUN] Ajouter: %s", (magnet_or_url or '')[:60] + '...')
+            from utils.i18n import t
+            self.logger.info(t("log.dry_run_add_short"), (magnet_or_url or '')[:60] + '...')
             return
         kwargs = {}
         if save_path:

@@ -23,6 +23,7 @@ services:
 
       # App behavior
       - DRY_RUN=${DRY_RUN:-true}
+      - SCHEDULE_INTERVAL_HOURS=${SCHEDULE_INTERVAL_HOURS:-24}
     
     volumes:
       # Persistent cache

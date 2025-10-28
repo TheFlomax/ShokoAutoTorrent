@@ -62,7 +62,8 @@ class NyaaSearcher:
             a = soup.select_one('a[href^="magnet:"]')
             return a['href'] if a else None
         except Exception as e:
-            self.logger.debug("Scrape magnet failed: %s", e)
+            from utils.i18n import t
+            self.logger.debug(t("log.scrape_magnet_failed"), e)
             return None
 
     def search_tsundere(self, queries: List[str]) -> List[Dict]:
@@ -74,7 +75,8 @@ class NyaaSearcher:
                 try:
                     feed = self._fetch_rss(base_url, q)
                 except Exception as e:
-                    self.logger.warning("RSS fetch failed for '%s' on %s: %s", q, base_url, e)
+                    from utils.i18n import t
+                    self.logger.warning(t("log.rss_fetch_failed"), q, base_url, e)
                     continue
                 for entry in feed.entries:
                     title = entry.get('title', '')
