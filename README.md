@@ -1,8 +1,14 @@
 # Shoko Auto Torrent 🎐
 
+![Mascot](https://files.catbox.moe/0ydja8.jpg)
+
 Automates searching and downloading missing episodes from Shoko to qBittorrent, prioritizing Tsundere-Raws releases from Nyaa.si.
 
 [Version Française ici 🇫🇷🇫🇷🇫🇷](README.fr.md)
+
+## Prerequisites
+- Requires Shoko Server to provide the API. Not affiliated with the Shoko project.
+- Website: https://shokoanime.com/ — Docs: https://docs.shokoanime.com/
 
 ## Quickstart (Docker Compose)
 1) Copy env example.
@@ -58,5 +64,36 @@ docker compose run --rm --user root shoko-auto-torrent \
 - You can add the source in `config.yaml` by adding nyaa.si usernames (ex: `users: [Tsundere-Raws, Arcedo, Erai-raws]`).
 - Title parsing pattern: `[Title] S##E## VOSTFR 1080p WEB … -Tsundere-Raws (CR)`
 - SQLite cache avoids repeated searches
-- Title parsing based on pattern: `[Title] S##E## VOSTFR 1080p WEB … -Tsundere-Raws (CR)`
-- SQLite cache to avoid repeated searches
+
+---
+
+## Disclaimer
+
+### Intended Use
+
+Shoko Auto Torrent automates search and queuing of torrents via RSS and qBittorrent.
+It is intended for legitimate uses (e.g., automating downloads of content you are authorized to access). It must not be used to download illegal, harmful, or unauthorized content.
+
+### Administrator Responsibility
+
+As a self-hosted tool, operators are solely responsible for:
+
+- Compliance with all applicable local, national, and international laws
+- Proper configuration and security of their environment (Shoko, qBittorrent, network, etc.)
+- Monitoring and moderating what is downloaded through their setup
+- Defining and enforcing appropriate usage policies for users of their environment
+
+### No Warranty
+
+THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+### Recommended Practices
+
+We strongly recommend that operators:
+
+- Restrict access to the environment (Shoko/qBittorrent) with proper authentication
+- Configure appropriate save paths, categories, and tags
+- Set reasonable limits (rate limits, item limits) and review logs regularly
+- Consider additional monitoring and backups in production
+
+By using Shoko Auto Torrent, you acknowledge you have read and understood this disclaimer.
