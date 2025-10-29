@@ -2,10 +2,10 @@
 
 Automates searching and downloading missing episodes from Shoko to qBittorrent, prioritizing Tsundere-Raws releases from Nyaa.si.
 
-[Version Française ici !](README.fr.md)
+[Version Française ici 🇫🇷🇫🇷🇫🇷](README.fr.md)
 
-## Ultra-fast start (Docker Compose)
-1) Copy env example
+## Quickstart (Docker Compose)
+1) Copy env example.
 ```bash
 cp .env.example .env
 ```
@@ -18,16 +18,13 @@ docker compose up -d
 ```bash
 docker compose logs -f shoko-auto-torrent
 ```
-5) One-off run (dry-run by default)
-```bash
-docker compose run --rm shoko-auto-torrent --limit 5 --dry-run --lang en
-```
 
 Minimal compose
 ```yaml
 services:
   shoko-auto-torrent:
     image: ghcr.io/theflomax/shokoautotorrent:latest
+    container_name: shoko-auto-torrent
     restart: unless-stopped
     env_file: .env
     volumes:
@@ -58,6 +55,7 @@ docker compose run --rm --user root shoko-auto-torrent \
 
 ## Notes
 - Main source: https://nyaa.si/user/Tsundere-Raws (RSS)
+- You can add the source in `config.yaml` by adding nyaa.si usernames (ex: `users: [Tsundere-Raws, Arcedo, Erai-raws]`).
 - Title parsing pattern: `[Title] S##E## VOSTFR 1080p WEB … -Tsundere-Raws (CR)`
 - SQLite cache avoids repeated searches
 - Title parsing based on pattern: `[Title] S##E## VOSTFR 1080p WEB … -Tsundere-Raws (CR)`
