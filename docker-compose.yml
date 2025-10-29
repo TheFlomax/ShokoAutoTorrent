@@ -1,52 +1,31 @@
 services:
   shoko-auto-torrent:
-    image: shoko-auto-torrent:latest
-    # Pour builder l'image localement, décommentez les lignes suivantes et commentez la ligne 'image:' ci-dessus
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile
+    image: ghcr.io/theflomax/shokoautotorrent:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: shoko-auto-torrent
     restart: unless-stopped
-    
-    environment:
-      # Shoko API
-      - SHOKO_URL=${SHOKO_URL}
-      - SHOKO_API_KEY=${SHOKO_API_KEY}
-      
-      # qBittorrent credentials
-      - QBIT_URL=${QBIT_URL}
-      - QBIT_USERNAME=${QBIT_USERNAME}
-      - QBIT_PASSWORD=${QBIT_PASSWORD}
-      
-      # Save path for downloads
-      - SAVE_ROOT=${SAVE_ROOT:-/data/anime}
 
-      # App behavior
-      - DRY_RUN=${DRY_RUN:-true}
-      - SCHEDULE_INTERVAL_HOURS=${SCHEDULE_INTERVAL_HOURS:-24}
-    
+    env_file:
+      - .env
+    environment:
+      # Fallbacks if not provided in .env
+      SHOKO_URL: ${SHOKO_URL}
+      SHOKO_API_KEY: ${SHOKO_API_KEY}
+      QBIT_URL: ${QBIT_URL}
+      QBIT_USERNAME: ${QBIT_USERNAME}
+      QBIT_PASSWORD: ${QBIT_PASSWORD}
+      SAVE_ROOT: ${SAVE_ROOT:-/data/anime}
+      DRY_RUN: ${DRY_RUN:-true}
+      SCHEDULE_INTERVAL_HOURS: ${SCHEDULE_INTERVAL_HOURS:-24}
+
     volumes:
-      # Persistent cache
       - ./cache:/app/.cache
-      
-      # Optional: mount config if you want to modify it outside container
       - ./config.yaml:/app/config.yaml:ro
-      
-      # Optional: if qBittorrent is local, you might need to share download paths
-      # - /path/to/downloads:/data/anime
-    
-    # Uncomment if running in a network with other services
-    # networks:
-    #   - media-network
-    
-    # Adjust logging
+
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
         max-file: "3"
-
-# Uncomment if you need to share network with other services
-# networks:
-#   media-network:
-#     external: true

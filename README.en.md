@@ -2,6 +2,10 @@
 
 Automates searching and downloading missing episodes from Shoko to qBittorrent, prioritizing Tsundere-Raws releases from Nyaa.si.
 
+## Ultra-fast start
+- Prebuilt image: `docker run --rm --env-file .env -v $(pwd)/cache:/app/.cache -v $(pwd)/config.yaml:/app/config.yaml:ro ghcr.io/theflomax/shokoautotorrent:latest --limit 5 --dry-run --lang en`
+- With Compose: `cp .env.example .env && make up` then `make logs`
+
 📖 This README is the source of truth. 🐳 Advanced Docker details: see [DOCKER.md](DOCKER.md)
 
 ## Requirements

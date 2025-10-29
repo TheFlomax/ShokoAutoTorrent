@@ -1,6 +1,10 @@
 # Shoko Auto Torrent (Tsundere-Raws)
 
-Automatise la recherche et le téléchargement d'épisodes manquants depuis Shoko vers qBittorrent en privilégiant les releases Tsundere-Raws sur Nyaa.si.
+Automatise la recherche et le téléchargement d'épisodes manquants depuis Shoko vers qBittorrent, priorisant les releases Tsundere-Raws sur Nyaa.si.
+
+## Démarrage ultra-rapide
+- Image précompilée: `docker run --rm --env-file .env -v $(pwd)/cache:/app/.cache -v $(pwd)/config.yaml:/app/config.yaml:ro ghcr.io/theflomax/shokoautotorrent:latest --limit 5 --dry-run --lang fr`
+- Avec Compose: `cp .env.example .env && make up` puis `make logs`
 
 📖 Ce README est la source de vérité. 🐳 Détails Docker avancés: voir [DOCKER.md](DOCKER.md)
 
