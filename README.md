@@ -1,4 +1,4 @@
-# Shoko Auto Torrent (Tsundere-Raws)
+# Shoko Auto Torrent 🎐
 
 Automates searching and downloading missing episodes from Shoko to qBittorrent, prioritizing Tsundere-Raws releases from Nyaa.si.
 
