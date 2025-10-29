@@ -17,6 +17,7 @@ log:
   adding_qbit: "Adding to qBittorrent: %s"
   qbit_add_fail: "Failed to add to qBittorrent: %s"
   processing_done_count: "Processing finished. %d episodes processed."
+  cycle_summary: "Summary: total=%d, added=%d, not found=%d"
   scheduler_enabled: "Scheduler enabled: runs every %d hours"
   cycle_error: "Error during a cycle: %s"
   next_run_in: "Next run in %d seconds (~%0.2f h)"

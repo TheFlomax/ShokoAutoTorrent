@@ -11,10 +11,12 @@ qbittorrent:
   password: ${QBIT_PASSWORD}
   verify_cert: false  # set true if using valid HTTPS cert
   prefer_http: true   # force http scheme if QBIT_URL is https with bad cert
-  category_prefix: anime
+  # Tag/category control via env (optional)
+  tag_enabled: ${QBIT_TAG_ENABLED}
+  tag_value: ${QBIT_TAG_VALUE}
+  category_enabled: ${QBIT_CATEGORY_ENABLED}
   save_root: ${SAVE_ROOT}
   path_template: "{save_root}/{series}/Season {season2}"
-  tags: [auto, shoko]
 
 search:
   provider: nyaa

@@ -78,6 +78,8 @@ def run_cycle(cfg: dict, logger: logging.Logger, qbit: QbitClient, shoko: ShokoC
     logger.info(t("log.missing_found_count"), len(episodes))
 
     processed = 0
+    added_count = 0
+    not_found_count = 0
     for ep in episodes:
         if processed >= max_items:
             break
@@ -100,6 +102,7 @@ def run_cycle(cfg: dict, logger: logging.Logger, qbit: QbitClient, shoko: ShokoC
         results = nyaa.search_tsundere(queries)
         if not results:
             logger.info(t("log.no_results"), queries[0])
+            not_found_count += 1
             processed += 1
             continue
 
@@ -111,10 +114,14 @@ def run_cycle(cfg: dict, logger: logging.Logger, qbit: QbitClient, shoko: ShokoC
 
         if not magnet:
             logger.debug(t("log.no_link_for_title"), title)
+            not_found_count += 1
             processed += 1
             continue
 
-        category = f"{cfg['qbittorrent'].get('category_prefix','anime')}/{safe_name(series_title)}"
+        # Category: SERIES Sxx in uppercase (optional)
+        s_for_cat = int(season) if season else infer_season_from_title(series_title, default=1)
+        category_enabled = True if cfg["qbittorrent"].get("category_enabled", None) is None else to_bool(cfg["qbittorrent"].get("category_enabled"), True)
+        category = f"{safe_name(series_title).upper()} S{s_for_cat:02d}" if category_enabled else None
         # Build customizable save path from template
         tmpl = cfg["qbittorrent"].get("path_template") or "{save_root}/{series}"
         save_root = cfg["qbittorrent"].get("save_root", "/data/anime")
@@ -130,7 +137,10 @@ def run_cycle(cfg: dict, logger: logging.Logger, qbit: QbitClient, shoko: ShokoC
             'source': parsed.get('source') or "",
         }
         save_path = render_path_template(tmpl, mapping)
-        tags = ",".join(cfg["qbittorrent"].get("tags", []))
+        # Tag: single tag (optional, customizable)
+        tag_enabled = True if cfg["qbittorrent"].get("tag_enabled", None) is None else to_bool(cfg["qbittorrent"].get("tag_enabled"), True)
+        tag_value = str(cfg["qbittorrent"].get("tag_value", "ShokoAT")) if tag_enabled else ""
+        tags = tag_value if tag_enabled and tag_value else ""
 
         if cache.is_episode_downloaded(shoko_ep_id):
             logger.info(t("log.already_downloaded_cache"), title)
@@ -141,6 +151,7 @@ def run_cycle(cfg: dict, logger: logging.Logger, qbit: QbitClient, shoko: ShokoC
         try:
             qbit.add_magnet(magnet, save_path=save_path, category=category, tags=tags)
             cache.mark_episode_downloaded(shoko_ep_id, shoko_series_id, magnet, title)
+            added_count += 1
         except Exception as e:
             logger.error(t("log.qbit_add_fail"), e)
             notifier.notify_error(t("notify.qbit_add_fail_title", title=title), str(e))
@@ -149,6 +160,7 @@ def run_cycle(cfg: dict, logger: logging.Logger, qbit: QbitClient, shoko: ShokoC
         time.sleep(nyaa.rate_limit_seconds)
 
     logger.info(t("log.processing_done_count"), processed)
+    logger.info(t("log.cycle_summary"), len(episodes), added_count, not_found_count)
 
 
 def main():
