@@ -21,12 +21,15 @@ services:
       SCHEDULE_INTERVAL_HOURS: ${SCHEDULE_INTERVAL_HOURS:-24}
 
     volumes:
-      - ./cache:/app/.cache
-      # Optional: override bundled config
-      # - ./config.yaml:/app/config.yaml:ro
+      - config:/app/config
+      # Optional: bind a local file instead of the named volume
+      # - ./config.yaml:/app/config/config.yaml:ro
 
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
         max-file: "3"
+
+volumes:
+  config:

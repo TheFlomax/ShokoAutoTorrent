@@ -157,7 +157,29 @@ def main():
     pre.add_argument("--lang", default=None)
     pre_args, _ = pre.parse_known_args()
 
-    cfg = load_config(Path(pre_args.config))
+    # Resolve config path, supporting named volume at /app/config/config.yaml
+    CONFIG_DIR = Path("/app/config")
+    CFG_IN_VOLUME = CONFIG_DIR / "config.yaml"
+    DEFAULT_CFG_IN_IMAGE = Path("/app/config.yaml")
+
+    def resolve_config_path(requested: str) -> Path:
+        req = Path(requested)
+        if str(req) == "config.yaml":
+            if CFG_IN_VOLUME.exists():
+                return CFG_IN_VOLUME
+            # Try to seed from default if possible
+            try:
+                if CONFIG_DIR.exists() and DEFAULT_CFG_IN_IMAGE.exists() and os.access(CONFIG_DIR, os.W_OK):
+                    import shutil
+                    shutil.copy2(DEFAULT_CFG_IN_IMAGE, CFG_IN_VOLUME)
+                    return CFG_IN_VOLUME
+            except Exception:
+                pass
+            return DEFAULT_CFG_IN_IMAGE if DEFAULT_CFG_IN_IMAGE.exists() else req
+        return req
+
+    pre_cfg_path = resolve_config_path(pre_args.config)
+    cfg = load_config(pre_cfg_path)
     language = pre_args.lang or str(cfg.get("general", {}).get("language", "fr"))
     set_locale(language)
 
@@ -168,8 +190,9 @@ def main():
     parser.add_argument("--lang", default=None, help=t("cli.lang_help"))
     args = parser.parse_args()
 
-    # Re-load config if different file was provided
-    cfg = load_config(Path(args.config))
+    # Re-load config with final resolution
+    cfg_path = resolve_config_path(args.config)
+    cfg = load_config(cfg_path)
 
     log_level = getattr(logging, str(cfg.get("general", {}).get("log_level", "INFO")).upper(), logging.INFO)
     setup_logging(level=log_level)

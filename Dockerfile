@@ -31,8 +31,8 @@ COPY modules/ ./modules/
 COPY utils/ ./utils/
 COPY locales/ ./locales/
 
-# Create cache directory and set ownership
-RUN mkdir -p .cache && \
+# Create config and cache directories and set ownership
+RUN mkdir -p /app/config .cache && \
     chown -R appuser:appuser /app /home/appuser/.local
 
 # Switch to non-root user

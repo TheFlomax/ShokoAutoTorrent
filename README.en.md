@@ -29,15 +29,24 @@ services:
     restart: unless-stopped
     env_file: .env
     volumes:
-      - ./cache:/app/.cache
-    # Optional: override the default config bundled in the image
-    #  - ./config.yaml:/app/config.yaml:ro
+      - config:/app/config
+    # To edit a local file instead of the named volume:
+    #  - ./config.yaml:/app/config/config.yaml:ro
+
+volumes:
+  config:
 ```
 
 ## Configuration
 - Variables in `.env` (SHOKO_URL, SHOKO_API_KEY, QBIT_URL, QBIT_USERNAME, QBIT_PASSWORD, SAVE_ROOT, DRY_RUN, SCHEDULE_INTERVAL_HOURS)
 - A default config is bundled in the image and reads environment variables.
-- Optional: for advanced setups, mount your own `config.yaml` (see repository file) via `- ./config.yaml:/app/config.yaml:ro`.
+- Named volume `config` (mounted at `/app/config`) persists your configuration.
+- Seed the volume once with the default config:
+```bash
+docker compose run --rm --user root shoko-auto-torrent \
+  sh -c 'install -d -o 1000 -g 1000 /app/config && [ -f /app/config/config.yaml ] || install -o 1000 -g 1000 -m 644 /app/config.yaml /app/config/config.yaml'
+```
+- Or mount a local file: `- ./config.yaml:/app/config/config.yaml:ro`
 
 ## Usage (key options)
 - `--dry-run` forces simulation (overrides config/env)
