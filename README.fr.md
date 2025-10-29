@@ -30,12 +30,14 @@ services:
     env_file: .env
     volumes:
       - ./cache:/app/.cache
-      - ./config.yaml:/app/config.yaml:ro
+    # Optionnel: overrider la config par défaut intégrée à l'image
+    #  - ./config.yaml:/app/config.yaml:ro
 ```
 
 ## Configuration
 - Variables dans `.env` (SHOKO_URL, SHOKO_API_KEY, QBIT_URL, QBIT_USERNAME, QBIT_PASSWORD, SAVE_ROOT, DRY_RUN, SCHEDULE_INTERVAL_HOURS)
-- Adapter `config.yaml` si besoin (monté en lecture seule dans le conteneur)
+- Une config par défaut est incluse dans l'image et lit les variables d'environnement.
+- Optionnel: pour avancer, montez votre propre `config.yaml` (voir le fichier du dépôt) avec `- ./config.yaml:/app/config.yaml:ro`.
 
 ## Utilisation (options principales)
 - `--dry-run` force la simulation (prioritaire sur config/env)
