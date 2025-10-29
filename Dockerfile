@@ -29,6 +29,7 @@ COPY main.py .
 COPY config.yaml .
 COPY modules/ ./modules/
 COPY utils/ ./utils/
+COPY locales/ ./locales/
 
 # Create cache directory and set ownership
 RUN mkdir -p .cache && \
