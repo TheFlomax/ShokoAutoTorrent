@@ -2,6 +2,29 @@ import logging
 import re
 from typing import Dict, List, Optional
 
+
+def infer_season_from_title(series_title: str, default: int = 1) -> int:
+    # Season 4, season 2, etc.
+    m = re.search(r"\bSeason\s+(\d{1,2})\b", series_title, re.IGNORECASE)
+    if m:
+        return int(m.group(1))
+    # Explicit S4, S04
+    m = re.search(r"\bS(\d{1,2})\b", series_title, re.IGNORECASE)
+    if m:
+        return int(m.group(1))
+    # 2nd Season / 3rd Season
+    m = re.search(r"\b(\d{1,2})(?:st|nd|rd|th)\s+Season\b", series_title, re.IGNORECASE)
+    if m:
+        return int(m.group(1))
+    return default
+
+
+def normalize_series_title(series_title: str) -> str:
+    # Drop explicit 'Season X' from the series title for better SxxEyy queries
+    t = re.sub(r"\bSeason\s+\d{1,2}\b", "", series_title, flags=re.IGNORECASE)
+    t = re.sub(r"\s+", " ", t).strip()
+    return t
+
 RE_MAIN = re.compile(
     r"^(?:\[(?P<group>[^\]]+)\]\s*)?"  # optional [Group]
     r"(?P<title>.+?)\s+S(?P<season>\d{2})E(?P<episode>\d{2,3})(?:v(?P<version>\d+))?\s*"
@@ -60,13 +83,23 @@ def parse_release_title(title: str) -> Optional[Dict]:
 
 
 def build_queries_for_episode(series_title: str, season: Optional[int], episode: int) -> List[str]:
-    q = []
-    if season:
-        q.append(f"{series_title} S{int(season):02d}E{int(episode):02d}")
-    q.append(f"{series_title} E{int(episode):02d}")
-    # prefer FR
-    q.append((q[0] if q else f"{series_title} E{int(episode):02d}") + " VOSTFR")
-    return list(dict.fromkeys(q))
+    q: List[str] = []
+    cleaned = normalize_series_title(series_title)
+    s = int(season) if season else infer_season_from_title(series_title, default=1)
+    # Prefer SxxEyy format (Tsundere-Raws, Team Arcedo)
+    q.append(f"{cleaned} S{s:02d}E{int(episode):02d}")
+    q.append(f"{cleaned} S{s:02d}E{int(episode):02d} VOSTFR")
+    # Fallback E## (some groups)
+    q.append(f"{cleaned} E{int(episode):02d}")
+    q.append(f"{cleaned} E{int(episode):02d} VOSTFR")
+    # Ensure uniqueness, preserve order
+    seen = set()
+    out: List[str] = []
+    for item in q:
+        if item not in seen:
+            out.append(item)
+            seen.add(item)
+    return out
 
 
 def score_release(parsed: Dict, preferred: Optional[Dict]) -> int:

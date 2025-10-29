@@ -13,7 +13,7 @@ import yaml
 from modules.shoko_client import ShokoClient
 from modules.nyaa_search import NyaaSearcher
 from modules.qbit_client import QbitClient
-from modules.parser import build_queries_for_episode
+from modules.parser import build_queries_for_episode, infer_season_from_title
 from modules.cache import Cache
 from utils.logger import setup_logging
 from utils.notifier import Notifier
@@ -94,7 +94,8 @@ def run_cycle(cfg: dict, logger: logging.Logger, qbit: QbitClient, shoko: ShokoC
 
         queries = build_queries_for_episode(series_title, season, ep_num)
 
-        logger.info(t("log.searching_for"), series_title, f"{int(season):02d}" if season else "??", int(ep_num), shoko_ep_id)
+        disp_season = int(season) if season else infer_season_from_title(series_title, default=1)
+        logger.info(t("log.searching_for"), series_title, f"{int(disp_season):02d}", int(ep_num), shoko_ep_id)
 
         results = nyaa.search_tsundere(queries)
         if not results:
