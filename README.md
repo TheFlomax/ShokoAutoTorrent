@@ -9,7 +9,7 @@ Automates searching and downloading missing episodes from Shoko to qBittorrent, 
 ```bash
 cp .env.example .env
 ```
-2) Edit `.env` (if a password contains $, use $$)
+2) Edit `.env` (if a password contains $, use `$$`)
 3) Start in background
 ```bash
 docker compose up -d
