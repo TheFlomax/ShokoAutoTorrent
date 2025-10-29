@@ -235,6 +235,8 @@ def main():
         username=cfg["qbittorrent"].get("username", ""),
         password=cfg["qbittorrent"].get("password", ""),
         dry_run=dry_run,
+        verify_cert=bool(cfg["qbittorrent"].get("verify_cert", True)),
+        prefer_http=bool(cfg["qbittorrent"].get("prefer_http", False)),
     )
 
     logger.info(t("log.scheduler_enabled"), schedule_hours)

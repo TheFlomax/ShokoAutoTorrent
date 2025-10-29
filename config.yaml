@@ -9,6 +9,8 @@ qbittorrent:
   url: ${QBIT_URL}
   username: ${QBIT_USERNAME}
   password: ${QBIT_PASSWORD}
+  verify_cert: false  # set true if using valid HTTPS cert
+  prefer_http: true   # force http scheme if QBIT_URL is https with bad cert
   category_prefix: anime
   save_root: ${SAVE_ROOT}
   path_template: "{save_root}/{series}/Season {season2}"

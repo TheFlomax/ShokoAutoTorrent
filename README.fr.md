@@ -39,6 +39,7 @@ volumes:
 
 ## Configuration
 - Variables dans `.env` (SHOKO_URL, SHOKO_API_KEY, QBIT_URL, QBIT_USERNAME, QBIT_PASSWORD, SAVE_ROOT, DRY_RUN, SCHEDULE_INTERVAL_HOURS)
+- Si votre qBittorrent a un certificat HTTPS invalide, mettez `qbittorrent.verify_cert: false` et/ou `qbittorrent.prefer_http: true` dans config.yaml.
 - Une config par défaut est incluse dans l'image et lit les variables d'environnement.
 - Volume nommé `config` (monté sur `/app/config`) pour persister votre configuration.
 - Seeder le volume (une fois) avec la config par défaut:

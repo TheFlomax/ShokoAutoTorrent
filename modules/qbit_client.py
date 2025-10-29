@@ -5,12 +5,20 @@ import qbittorrentapi
 
 
 class QbitClient:
-    def __init__(self, url: str, username: str, password: str, dry_run: bool = False):
+    def __init__(self, url: str, username: str, password: str, dry_run: bool = False, verify_cert: bool = True, prefer_http: bool = False):
+        # Normalize URL scheme if requested
+        if prefer_http and url.startswith("https://"):
+            url = "http://" + url[len("https://"):]
         self.url = url
         self.username = username
         self.password = password
         self.dry_run = dry_run
-        self.client = qbittorrentapi.Client(host=self.url, username=self.username, password=self.password)
+        self.client = qbittorrentapi.Client(
+            host=self.url,
+            username=self.username,
+            password=self.password,
+            VERIFY_WEBUI_CERTIFICATE=verify_cert,
+        )
         self.logger = logging.getLogger(__name__)
 
     def ensure_connected(self):
