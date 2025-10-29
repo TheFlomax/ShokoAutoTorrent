@@ -2,96 +2,49 @@
 
 Automates searching and downloading missing episodes from Shoko to qBittorrent, prioritizing Tsundere-Raws releases from Nyaa.si.
 
-## Ultra-fast start
-- Prebuilt image: `docker run --rm --env-file .env -v $(pwd)/cache:/app/.cache -v $(pwd)/config.yaml:/app/config.yaml:ro ghcr.io/theflomax/shokoautotorrent:latest --limit 5 --dry-run --lang en`
-- With Compose: `cp .env.example .env && make up` then `make logs`
-
-📖 This README is the source of truth. 🐳 Advanced Docker details: see [DOCKER.md](DOCKER.md)
-
-## Requirements
-- Python 3.10+
-- qBittorrent with WebUI enabled
-- Access to Shoko v3 API (API key)
-
-## Installation
-
-### Option 1: Local install
+## Ultra-fast start (Docker Compose)
+1) Copy env example
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
-
-### Option 2: Docker (recommended)
-```bash
-# 1. Copy env example
 cp .env.example .env
-
-# 2. Edit .env with your credentials
-vim .env  # or nano, code, etc.
-# IMPORTANT: If your password contains $, escape it as $$ (ex: pass$$word)
-
-# 3. Build the Docker image
-make build
-# Or manually: docker build -t shoko-auto-torrent:latest .
-
-# 4. Start the container
-make run
-# Or manually: docker compose up -d
-
-# 5. View logs
-make logs
-# Or manually: docker compose logs -f shoko-auto-torrent
+```
+2) Edit `.env` (if a password contains $, use $$)
+3) Start in background
+```bash
+docker compose up -d
+```
+4) Tail logs (optional)
+```bash
+docker compose logs -f shoko-auto-torrent
+```
+5) One-off run (dry-run by default)
+```bash
+docker compose run --rm shoko-auto-torrent --limit 5 --dry-run --lang en
 ```
 
-**Notes:**
-- If you need `sudo` for Docker, uncomment `DOCKER` and `DOCKER_COMPOSE` lines in the Makefile
-- In dry-run mode (default), nothing will be added to qBittorrent. To disable dry-run, set `DRY_RUN=false` in your environment (e.g., `.env` for Docker, or `export DRY_RUN=false` before `python main.py`).
+Minimal compose
+```yaml
+services:
+  shoko-auto-torrent:
+    image: ghcr.io/theflomax/shokoautotorrent:latest
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - ./cache:/app/.cache
+      - ./config.yaml:/app/config.yaml:ro
+```
 
 ## Configuration
-Copy `config.yaml` and set environment variables for secrets:
-- SHOKO_API_KEY
-- QBIT_USERNAME
-- QBIT_PASSWORD
-- DRY_RUN (optional, default: `true`) — set to `false` to actually add items
+- Variables in `.env` (SHOKO_URL, SHOKO_API_KEY, QBIT_URL, QBIT_USERNAME, QBIT_PASSWORD, SAVE_ROOT, DRY_RUN, SCHEDULE_INTERVAL_HOURS)
+- Adjust `config.yaml` if needed (mounted read-only into the container)
 
-Adjust `qbittorrent.url`, `save_root`, search preferences (language, quality, sources), etc.
-
-## Usage
-
-### With local Python
-```bash
-python main.py --config config.yaml --limit 10 --dry-run
-```
-
-### With Docker
-```bash
-# One-off execution
-docker-compose run --rm shoko-auto-torrent --limit 10 --dry-run
-
-# Daemon mode (auto start)
-docker-compose up -d
-
-# Stop service
-docker-compose down
-```
-
-### Options
-- `--dry-run` forces simulation mode (takes priority over config/env)
-- `DRY_RUN` (environment variable, read via `config.yaml`) controls default behavior (without CLI flag). Default: `true`.
-- `--limit` caps number of episodes processed
-- `--config` specifies configuration file (use outside Docker)
-- `--lang` overrides output language (fr or en)
-
-## Structure
-See modules under `modules/` and utilities under `utils/`.
-
-## Tests
-```
-pytest -q
-```
+## Usage (key options)
+- `--dry-run` forces simulation (overrides config/env)
+- `--limit` caps the number of processed episodes
+- `--lang` sets output language (`fr` or `en`)
 
 ## Notes
-- Main source: https://nyaa.si/user/Tsundere-Raws (RSS feed used)
+- Main source: https://nyaa.si/user/Tsundere-Raws (RSS)
+- Title parsing pattern: `[Title] S##E## VOSTFR 1080p WEB … -Tsundere-Raws (CR)`
+- SQLite cache avoids repeated searches
 - Title parsing based on pattern: `[Title] S##E## VOSTFR 1080p WEB … -Tsundere-Raws (CR)`
 - SQLite cache to avoid repeated searches
