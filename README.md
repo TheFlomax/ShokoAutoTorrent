@@ -6,6 +6,19 @@ Automates searching and downloading missing episodes from Shoko to qBittorrent, 
 
 [Version Française ici 🇫🇷🇫🇷🇫🇷](README.fr.md)
 
+## ✨ Key Features
+
+- 🔍 **Smart Search**: Intelligent title sanitization and query building for accurate Nyaa.si matches
+- ⚡ **Async Performance**: Parallel RSS feed fetching for blazing-fast episode discovery
+- 🎯 **Early Exit**: Stop at first successful query to save time (configurable)
+- 🔄 **Scheduled Runs**: Automatic periodic checks (configurable interval)
+- 🎨 **Quality Preferences**: Prioritize your preferred quality, language, and sources
+- 💾 **Smart Caching**: SQLite-based cache to avoid duplicate searches and downloads
+- 🐳 **Docker Ready**: Easy deployment with Docker Compose
+- 🌍 **Multilingual**: Support for French and English output
+- 🏷️ **Organized Downloads**: Automatic categorization and tagging in qBittorrent
+- 🛡️ **Dry-Run Mode**: Test your configuration safely before actual downloads
+
 ## Prerequisites
 - Requires Shoko Server to provide the API. Not affiliated with the Shoko project.
 - Website: https://shokoanime.com/ — Docs: https://docs.shokoanime.com/
@@ -43,7 +56,7 @@ volumes:
 ```
 
 ## Configuration
-- Variables in `.env` (SHOKO_URL, SHOKO_API_KEY, QBIT_URL, QBIT_USERNAME, QBIT_PASSWORD, SAVE_ROOT, DRY_RUN, SCHEDULE_INTERVAL_HOURS)
+- Variables in `.env` (SHOKO_URL, SHOKO_API_KEY, QBIT_URL, QBIT_USERNAME, QBIT_PASSWORD, SAVE_ROOT, DRY_RUN, EARLY_EXIT, SCHEDULE_INTERVAL_HOURS)
 - If your qBittorrent uses an invalid HTTPS cert, set `qbittorrent.verify_cert: false` and/or `qbittorrent.prefer_http: true` in config.yaml.
 - A default config is bundled in the image and reads environment variables.
 - Named volume `config` (mounted at `/app/config`) persists your configuration.
