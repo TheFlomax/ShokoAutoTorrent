@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import time
 from typing import Dict, List, Optional, Sequence
@@ -66,41 +67,97 @@ class NyaaSearcher:
             self.logger.debug(t("log.scrape_magnet_failed"), e)
             return None
 
-    def search_tsundere(self, queries: List[str]) -> List[Dict]:
+    async def _fetch_rss_async(self, base_url: str, query: Optional[str] = None) -> Optional[feedparser.FeedParserDict]:
+        """Async wrapper for RSS fetching."""
+        url = base_url
+        if query:
+            url += f"&q={httpx.QueryParams({'q': query})['q']}"
+        
+        self.logger.debug(f"Fetching RSS: {url}")
+        
+        cached = self.cache.get_search_cache(url) if self.cache else None
+        if cached:
+            self.logger.debug(f"Cache hit for: {url}")
+            return feedparser.parse(cached)
+        try:
+            async with httpx.AsyncClient(timeout=20) as client:
+                resp = await client.get(url)
+                resp.raise_for_status()
+                text = resp.text
+                if self.cache:
+                    self.cache.set_search_cache(url, text)
+                return feedparser.parse(text)
+        except Exception as e:
+            from utils.i18n import t
+            self.logger.warning(t("log.rss_fetch_failed"), query, base_url, e)
+            return None
+
+    async def _search_query_async(self, query: str) -> List[Dict]:
+        """Search a single query across all RSS feeds in parallel."""
+        tasks = [self._fetch_rss_async(base_url, query) for base_url in self.rss_urls]
+        feeds = await asyncio.gather(*tasks, return_exceptions=False)
+        
         results: List[Dict] = []
         seen = set()
-        for q in queries:
-            for base_url in self.rss_urls:
-                time.sleep(self.rate_limit_seconds)
-                try:
-                    feed = self._fetch_rss(base_url, q)
-                except Exception as e:
-                    from utils.i18n import t
-                    self.logger.warning(t("log.rss_fetch_failed"), q, base_url, e)
+        
+        for feed in feeds:
+            if not feed:
+                continue
+            for entry in feed.entries:
+                title = entry.get('title', '')
+                parsed = parse_release_title(title)
+                if not parsed:
                     continue
-                for entry in feed.entries:
-                    title = entry.get('title', '')
-                    parsed = parse_release_title(title)
-                    if not parsed:
-                        continue
-                    # Basic language/source filter
-                    pref_lang = (self.preferred or {}).get('language')
-                    if pref_lang and parsed.get('language') and pref_lang.lower() not in parsed['language'].lower():
-                        continue
-                    # Score
-                    sc = score_release(parsed, self.preferred)
-                    magnet = self._extract_magnet(entry)
-                    key = (title, magnet)
-                    if key in seen:
-                        continue
+                # Basic language/source filter
+                pref_lang = (self.preferred or {}).get('language')
+                if pref_lang and parsed.get('language') and pref_lang.lower() not in parsed['language'].lower():
+                    continue
+                # Score
+                sc = score_release(parsed, self.preferred)
+                magnet = self._extract_magnet(entry)
+                key = (title, magnet)
+                if key in seen:
+                    continue
+                seen.add(key)
+                results.append({
+                    'title': title,
+                    'magnet': magnet,
+                    'score': sc,
+                    'parsed': parsed,
+                    'link': entry.get('link')
+                })
+        return results
+
+    def search_tsundere(self, queries: List[str], early_exit: bool = True) -> List[Dict]:
+        """
+        Search for torrents using multiple queries.
+        If early_exit=True, stops at first query that returns results.
+        """
+        self.logger.info(f"Early exit: {'enabled' if early_exit else 'disabled'}")
+        results: List[Dict] = []
+        seen = set()
+        
+        for i, q in enumerate(queries):
+            if i > 0:
+                time.sleep(self.rate_limit_seconds)
+            
+            self.logger.info(f"Trying query [{i+1}/{len(queries)}]: '{q}'")
+            
+            # Run async search for this query across all RSS feeds in parallel
+            query_results = asyncio.run(self._search_query_async(q))
+            
+            # Deduplicate and add to overall results
+            for r in query_results:
+                key = (r['title'], r['magnet'])
+                if key not in seen:
                     seen.add(key)
-                    results.append({
-                        'title': title,
-                        'magnet': magnet,
-                        'score': sc,
-                        'parsed': parsed,
-                        'link': entry.get('link')
-                    })
+                    results.append(r)
+            
+            # Early exit: if we found results, stop searching
+            if early_exit and results:
+                self.logger.debug(f"Early exit: found {len(results)} result(s) with query '{q}'")
+                break
+        
         # Prefer higher score, then version desc, then quality desc, then title
         def sort_key(x):
             parsed = x['parsed']

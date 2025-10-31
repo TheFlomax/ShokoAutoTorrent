@@ -18,7 +18,10 @@ services:
       QBIT_PASSWORD: ${QBIT_PASSWORD}
       SAVE_ROOT: ${SAVE_ROOT:-/data/anime}
       DRY_RUN: ${DRY_RUN:-true}
+      EARLY_EXIT: ${EARLY_EXIT:-true}
       SCHEDULE_INTERVAL_HOURS: ${SCHEDULE_INTERVAL_HOURS:-24}
+      DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN}
+      DISCORD_ALLOWED_USER_IDS: ${DISCORD_ALLOWED_USER_IDS}
 
     volumes:
       - config:/app/config

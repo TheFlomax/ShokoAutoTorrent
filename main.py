@@ -57,7 +57,7 @@ def ensure_cache_db(path: Path):
     path.parent.mkdir(parents=True, exist_ok=True)
 
 
-def run_cycle(cfg: dict, logger: logging.Logger, qbit: QbitClient, shoko: ShokoClient, nyaa: NyaaSearcher, cache: Cache, notifier: Notifier, max_items: int):
+def run_cycle(cfg: dict, logger: logging.Logger, qbit: QbitClient, shoko: ShokoClient, nyaa: NyaaSearcher, cache: Cache, notifier: Notifier, max_items: int, early_exit: bool = True):
     try:
         qbit.ensure_connected()
     except Exception as e:
@@ -99,7 +99,7 @@ def run_cycle(cfg: dict, logger: logging.Logger, qbit: QbitClient, shoko: ShokoC
         disp_season = int(season) if season else infer_season_from_title(series_title, default=1)
         logger.info(t("log.searching_for"), series_title, f"{int(disp_season):02d}", int(ep_num), shoko_ep_id)
 
-        results = nyaa.search_tsundere(queries)
+        results = nyaa.search_tsundere(queries, early_exit=early_exit)
         if not results:
             logger.info(t("log.no_results"), queries[0])
             not_found_count += 1
@@ -215,6 +215,10 @@ def main():
     dry_run_cfg = cfg.get("general", {}).get("dry_run", None)
     dry_run = args.dry_run or to_bool(dry_run_cfg, default=True)
     max_items = args.limit or int(cfg.get("general", {}).get("max_items", 10))
+    
+    # EARLY_EXIT: default True if unset
+    early_exit_cfg = cfg.get("general", {}).get("early_exit", None)
+    early_exit = to_bool(early_exit_cfg, default=True)
 
     # Scheduler interval in hours (default 24h if unset/empty)
     sched_hours_raw = cfg.get("general", {}).get("schedule_hours", None)
@@ -256,7 +260,7 @@ def main():
         while True:
             start_ts = int(time.time())
             try:
-                run_cycle(cfg, logger, qbit, shoko, nyaa, cache, notifier, max_items=max_items)
+                run_cycle(cfg, logger, qbit, shoko, nyaa, cache, notifier, max_items=max_items, early_exit=early_exit)
             except Exception as e:
                 logger.exception(t("log.cycle_error"), e)
                 notifier.notify_error(t("notify.cycle_error_title"), str(e))

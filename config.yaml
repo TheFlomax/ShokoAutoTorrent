@@ -46,3 +46,5 @@ general:
   language: fr  # fr or en
   # Intervalle planifié en heures (défaut 24 si non défini)
   schedule_hours: ${SCHEDULE_INTERVAL_HOURS}
+  # Early exit: stop at first query with results (default true for performance)
+  early_exit: ${EARLY_EXIT}
