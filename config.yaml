@@ -48,3 +48,6 @@ general:
   schedule_hours: ${SCHEDULE_INTERVAL_HOURS}
   # Early exit: stop at first query with results (default true for performance)
   early_exit: ${EARLY_EXIT}
+  # Shoko stats update before fetching missing
+  shoko_update_series_stats: ${SHOKO_UPDATE_SERIES_STATS}
+  shoko_update_wait_seconds: ${SHOKO_UPDATE_WAIT_SECONDS}

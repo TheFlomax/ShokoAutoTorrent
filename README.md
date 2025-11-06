@@ -56,7 +56,12 @@ volumes:
 ```
 
 ## Configuration
-- Variables in `.env` (SHOKO_URL, SHOKO_API_KEY, QBIT_URL, QBIT_USERNAME, QBIT_PASSWORD, SAVE_ROOT, DRY_RUN, EARLY_EXIT, SCHEDULE_INTERVAL_HOURS)
+- Variables in `.env`:
+  - SHOKO_URL, SHOKO_API_KEY
+  - QBIT_URL, QBIT_USERNAME, QBIT_PASSWORD
+  - SAVE_ROOT, DRY_RUN, EARLY_EXIT, SCHEDULE_INTERVAL_HOURS
+  - SHOKO_UPDATE_SERIES_STATS (default: true) — run Shoko /Action/UpdateSeriesStats at the start of each cycle
+  - SHOKO_UPDATE_WAIT_SECONDS (default: 20) — wait time after requesting the update
 - If your qBittorrent uses an invalid HTTPS cert, set `qbittorrent.verify_cert: false` and/or `qbittorrent.prefer_http: true` in config.yaml.
 - A default config is bundled in the image and reads environment variables.
 - Named volume `config` (mounted at `/app/config`) persists your configuration.
@@ -67,10 +72,29 @@ docker compose run --rm --user root shoko-auto-torrent \
 ```
 - Or mount a local file: `- ./config.yaml:/app/config/config.yaml:ro`
 
+### Shoko Series Stats Update
+- When enabled, the app requests `GET /api/v3/Action/UpdateSeriesStats` before fetching missing episodes, then waits `SHOKO_UPDATE_WAIT_SECONDS` to let Shoko recalculate stats and group filters.
+- This helps ensure the missing list is up-to-date.
+
 ## Usage (key options)
 - `--dry-run` forces simulation (overrides config/env)
 - `--limit` caps the number of processed episodes
 - `--lang` sets output language (`fr` or `en`)
+
+## Development / Local Testing
+- Python
+  ```bash
+  python -m venv .venv
+  .venv/bin/python -m pip install -r requirements.txt
+  .venv/bin/pytest -q
+  .venv/bin/python main.py --dry-run --limit 2 --lang en
+  ```
+- Docker
+  ```bash
+  docker build -t shokoautotorrent:dev .
+  # provide a .env file with your settings (see .env.example)
+  docker run --rm --env-file .env -e SCHEDULE_INTERVAL_HOURS=0 shokoautotorrent:dev --limit 2 --lang fr
+  ```
 
 ## Notes
 - Main source: https://nyaa.si/user/Tsundere-Raws (RSS)

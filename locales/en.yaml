@@ -26,6 +26,9 @@ log:
   rss_fetch_failed: "RSS fetch failed for '%s' on %s: %s"
   scrape_magnet_failed: "Scraping magnet from page failed: %s"
   discord_notify_failed: "Discord notification failed: %s"
+  shoko_update_series_stats: "Requesting Shoko to update series statistics…"
+  shoko_update_series_stats_failed: "Failed to request update of series statistics: %s"
+  waiting_after_shoko_update: "Waiting %d seconds to let Shoko recalculate…"
 notify:
   cycle_error_title: "ShokoAutoTorrent cycle error"
   qbit_add_fail_title: "Failed qBittorrent add: {title}"

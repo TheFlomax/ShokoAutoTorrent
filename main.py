@@ -67,6 +67,23 @@ def run_cycle(cfg: dict, logger: logging.Logger, qbit: QbitClient, shoko: ShokoC
         else:
             logger.warning(t("log.qbit_not_connected_dryrun"), e)
 
+    # Request Shoko to update series stats and wait a bit to ensure fresh data (configurable)
+    update_enabled = to_bool(cfg.get("general", {}).get("shoko_update_series_stats", None), default=True)
+    wait_raw = cfg.get("general", {}).get("shoko_update_wait_seconds", None)
+    try:
+        wait_seconds = int(str(wait_raw).strip()) if str(wait_raw).strip() != "" else 20
+    except Exception:
+        wait_seconds = 20
+    if update_enabled:
+        logger.info(t("log.shoko_update_series_stats"))
+        try:
+            shoko.update_series_stats()
+        except Exception as e:
+            logger.warning(t("log.shoko_update_series_stats_failed"), e)
+        if wait_seconds > 0:
+            logger.info(t("log.waiting_after_shoko_update"), wait_seconds)
+            time.sleep(wait_seconds)
+
     logger.info(t("log.fetching_missing"))
     episodes = shoko.get_missing_episodes(
         page_size=int(cfg["shoko"].get("page_size", 100)),

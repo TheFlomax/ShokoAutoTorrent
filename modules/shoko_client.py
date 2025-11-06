@@ -68,3 +68,9 @@ class ShokoClient:
                 break
             params['page'] = page + 1
         return results
+
+    def update_series_stats(self) -> None:
+        """Queue a job on Shoko to update all series stats and group filters."""
+        r = self._get('Action/UpdateSeriesStats', params={})
+        # No payload expected; log status for debugging
+        self.logger.debug("Requested Shoko UpdateSeriesStats: %s", r.status_code)
