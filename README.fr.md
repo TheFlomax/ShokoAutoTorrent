@@ -6,6 +6,20 @@ Automatise la recherche et le téléchargement d'épisodes manquants depuis Shok
 
 [English version here 🇬🇧🇬🇧🇬🇧](README.md)
 
+## ✨ Fonctionnalités Clés
+
+- 🔍 **Recherche Intelligente**: Sanitisation des titres et construction de requêtes optimisées pour Nyaa.si
+- ⚡ **Performance Asynchrone**: Récupération parallèle des flux RSS pour une découverte ultra-rapide
+- 🎯 **Sortie Précoce**: Arrêt à la première requête réussie pour gagner du temps (configurable)
+- 🔄 **Exécutions Planifiées**: Vérifications périodiques automatiques (intervalle configurable)
+- 🎨 **Préférences de Qualité**: Priorisez votre qualité, langue et sources préférées
+- 💾 **Cache Intelligent**: Cache SQLite pour éviter les recherches et téléchargements en double
+- 🐳 **Prêt pour Docker**: Déploiement facile avec Docker Compose
+- 🌍 **Multilingue**: Support pour les sorties en français et anglais
+- 🏷️ **Téléchargements Organisés**: Catégorisation et tagging automatiques dans qBittorrent
+- 🛡️ **Mode Dry-Run**: Testez votre configuration en toute sécurité avant les vrais téléchargements
+- 🤖 **Bot Discord** (optionnel): Surveillance et contrôle via commandes slash Discord - [Guide de Configuration](DISCORD.fr.md)
+
 ## Prérequis
 - Requiert Shoko Server pour fournir l’API. Projet non affilié à Shoko.
 - Site: https://shokoanime.com/ — Docs: https://docs.shokoanime.com/
@@ -47,7 +61,12 @@ volumes:
 ```
 
 ## Configuration
-- Variables dans `.env` (SHOKO_URL, SHOKO_API_KEY, QBIT_URL, QBIT_USERNAME, QBIT_PASSWORD, SAVE_ROOT, DRY_RUN, SCHEDULE_INTERVAL_HOURS)
+- Variables dans `.env`:
+  - SHOKO_URL, SHOKO_API_KEY
+  - QBIT_URL, QBIT_USERNAME, QBIT_PASSWORD
+  - SAVE_ROOT, DRY_RUN, EARLY_EXIT, SCHEDULE_INTERVAL_HOURS
+  - SHOKO_UPDATE_SERIES_STATS (défaut : true) — exécute `/Action/UpdateSeriesStats` au début de chaque cycle
+  - SHOKO_UPDATE_WAIT_SECONDS (défaut : 20) — durée d’attente après la demande de mise à jour
 - Si votre qBittorrent a un certificat HTTPS invalide, mettez `qbittorrent.verify_cert: false` et/ou `qbittorrent.prefer_http: true` dans config.yaml.
 - Une config par défaut est incluse dans l'image et lit les variables d'environnement.
 - Volume nommé `config` (monté sur `/app/config`) pour persister votre configuration.
@@ -58,10 +77,29 @@ docker compose run --rm --user root shoko-auto-torrent \
 ```
 - Ou montez un fichier local: `- ./config.yaml:/app/config/config.yaml:ro`
 
+### Mise à jour des statistiques des séries Shoko
+- Lorsque l’option est activée, l’application appelle `GET /api/v3/Action/UpdateSeriesStats` avant de récupérer les épisodes manquants, puis attend `SHOKO_UPDATE_WAIT_SECONDS` pour laisser Shoko recalculer les statistiques et filtres de groupes.
+- Cela permet d’obtenir une liste d’épisodes manquants à jour.
+
 ## Utilisation (options principales)
 - `--dry-run` force la simulation (prioritaire sur config/env)
 - `--limit` limite le nombre d'épisodes traités
 - `--lang` sélectionne la langue de sortie (`fr` ou `en`)
+
+## Développement / Tests locaux
+- Python
+  ```bash
+  python -m venv .venv
+  .venv/bin/python -m pip install -r requirements.txt
+  .venv/bin/pytest -q
+  .venv/bin/python main.py --dry-run --limit 2 --lang fr
+  ```
+- Docker
+  ```bash
+  docker build -t shokoautotorrent:dev .
+  # fournissez un fichier .env avec vos paramètres (voir .env.example)
+  docker run --rm --env-file .env -e SCHEDULE_INTERVAL_HOURS=0 shokoautotorrent:dev --limit 2 --lang fr
+  ```
 
 ## Notes
 - Source principale: https://nyaa.si/user/Tsundere-Raws (flux RSS)

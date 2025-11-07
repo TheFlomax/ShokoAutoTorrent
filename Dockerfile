@@ -18,6 +18,15 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+# Install Node.js
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    curl \
+    ca-certificates \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
 # Create non-root user first
 RUN useradd -m -u 1000 appuser
 
@@ -30,6 +39,11 @@ COPY config.yaml .
 COPY modules/ ./modules/
 COPY utils/ ./utils/
 COPY locales/ ./locales/
+COPY start.sh .
+COPY discord_bot/ ./discord_bot/
+
+# Install Discord bot dependencies
+RUN cd discord_bot && npm install --production && cd ..
 
 # Create config and cache directories and set ownership
 RUN mkdir -p /app/config .cache && \
@@ -42,5 +56,5 @@ USER appuser
 ENV PATH=/home/appuser/.local/bin:$PATH
 
 # Set default command
-ENTRYPOINT ["python", "main.py"]
+ENTRYPOINT ["./start.sh"]
 CMD ["--config", "config.yaml"]

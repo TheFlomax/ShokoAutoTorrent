@@ -11,6 +11,11 @@ venv/
 ENV/
 env/
 
+# Node.js
+node_modules/
+discord_bot/node_modules/
+package-lock.json
+
 # Testing
 .pytest_cache/
 .coverage

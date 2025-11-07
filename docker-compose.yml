@@ -18,7 +18,17 @@ services:
       QBIT_PASSWORD: ${QBIT_PASSWORD}
       SAVE_ROOT: ${SAVE_ROOT:-/data/anime}
       DRY_RUN: ${DRY_RUN:-true}
+      EARLY_EXIT: ${EARLY_EXIT:-true}
       SCHEDULE_INTERVAL_HOURS: ${SCHEDULE_INTERVAL_HOURS:-24}
+      # Shoko update options
+      SHOKO_UPDATE_SERIES_STATS: ${SHOKO_UPDATE_SERIES_STATS:-true}
+      SHOKO_UPDATE_WAIT_SECONDS: ${SHOKO_UPDATE_WAIT_SECONDS:-20}
+      # Discord bot (optional)
+      DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN:-}
+      DISCORD_CHANNEL_ID: ${DISCORD_CHANNEL_ID:-}
+      DISCORD_ALLOWED_USER_IDS: ${DISCORD_ALLOWED_USER_IDS:-}
+      DISCORD_LANGUAGE: ${DISCORD_LANGUAGE:-en}
+      INTERNAL_API_URL: ${INTERNAL_API_URL:-http://localhost:8765}
 
     volumes:
       - config:/app/config

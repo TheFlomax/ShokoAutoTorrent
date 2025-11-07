@@ -1,0 +1,17 @@
+{
+  "name": "shokoautotorrent-discord-bot",
+  "version": "1.0.0",
+  "description": "Discord bot for ShokoAutoTorrent monitoring",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": ["discord", "bot", "shoko", "anime"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "axios": "^1.6.5",
+    "js-yaml": "^4.1.0"
+  }
+}
