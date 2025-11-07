@@ -100,9 +100,9 @@ def run_cycle(
         try:
             shoko.update_series_stats()
         except Exception as e:
-            logger.warning(t("log.shoko_update_series_stats_failed"), e)
+            logger.warning(f"{t('log.shoko_update_series_stats_failed')}: {e}")
         if wait_seconds > 0:
-            logger.info(t("log.waiting_after_shoko_update"), wait_seconds)
+            logger.info(f"{t('log.waiting_after_shoko_update')}: {wait_seconds} seconds")
             time.sleep(wait_seconds)
 
     logger.info(t("log.fetching_missing"))

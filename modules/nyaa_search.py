@@ -66,16 +66,29 @@ class NyaaSearcher:
             self.logger.debug(t("log.scrape_magnet_failed"), e)
             return None
 
-    def search_tsundere(self, queries: List[str]) -> List[Dict]:
+    def search_tsundere(self, queries: List[str], early_exit: bool = True) -> List[Dict]:
+        """
+        Search for torrents using multiple queries.
+        If early_exit=True, stops at first query that returns results.
+        """
+        from utils.i18n import t
+        self.logger.info(f"Early exit: {'enabled' if early_exit else 'disabled'}")
         results: List[Dict] = []
         seen = set()
-        for q in queries:
-            for base_url in self.rss_urls:
+        
+        for i, q in enumerate(queries):
+            if i > 0:
                 time.sleep(self.rate_limit_seconds)
+            
+            self.logger.info(f"Trying query [{i+1}/{len(queries)}]: '{q}'")
+            query_results = []
+            
+            for base_url in self.rss_urls:
+                if base_url != self.rss_urls[0]:
+                    time.sleep(self.rate_limit_seconds)
                 try:
                     feed = self._fetch_rss(base_url, q)
                 except Exception as e:
-                    from utils.i18n import t
                     self.logger.warning(t("log.rss_fetch_failed"), q, base_url, e)
                     continue
                 for entry in feed.entries:
@@ -94,13 +107,20 @@ class NyaaSearcher:
                     if key in seen:
                         continue
                     seen.add(key)
-                    results.append({
+                    result = {
                         'title': title,
                         'magnet': magnet,
                         'score': sc,
                         'parsed': parsed,
                         'link': entry.get('link')
-                    })
+                    }
+                    results.append(result)
+                    query_results.append(result)
+            
+            # Early exit: if we found results, stop searching
+            if early_exit and results:
+                self.logger.debug(f"Early exit: found {len(results)} result(s) with query '{q}'")
+                break
         # Prefer higher score, then version desc, then quality desc, then title
         def sort_key(x):
             parsed = x['parsed']

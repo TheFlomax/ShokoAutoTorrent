@@ -25,6 +25,29 @@ def normalize_series_title(series_title: str) -> str:
     t = re.sub(r"\s+", " ", t).strip()
     return t
 
+
+def sanitize_title_for_nyaa(title: str) -> str:
+    """
+    Remove special characters that are often stripped by Nyaa uploaders.
+    Keeps alphanumeric, spaces, and common safe chars.
+    """
+    # Remove common punctuation that uploaders strip: : ! , ? ' " . -
+    # but keep spaces and alphanumeric
+    sanitized = re.sub(r"[!?:,'\".-]", "", title)
+    # Collapse multiple spaces to single space
+    sanitized = re.sub(r"\s+", " ", sanitized).strip()
+    return sanitized
+
+
+def shorten_title(title: str, max_words: int = 5) -> str:
+    """
+    Shorten a title to the first N words for long series names.
+    """
+    words = title.split()
+    if len(words) <= max_words:
+        return title
+    return " ".join(words[:max_words])
+
 RE_MAIN = re.compile(
     r"^(?:\[(?P<group>[^\]]+)\]\s*)?"  # optional [Group]
     r"(?P<title>.+?)\s+S(?P<season>\d{2})E(?P<episode>\d{2,3})(?:v(?P<version>\d+))?\s*"
@@ -85,13 +108,32 @@ def parse_release_title(title: str) -> Optional[Dict]:
 def build_queries_for_episode(series_title: str, season: Optional[int], episode: int) -> List[str]:
     q: List[str] = []
     cleaned = normalize_series_title(series_title)
+    # Remove special chars that Nyaa uploaders often strip
+    sanitized = sanitize_title_for_nyaa(cleaned)
+    # For long titles, also try shortened version
+    shortened = shorten_title(sanitized, max_words=5)
+    
     s = int(season) if season else infer_season_from_title(series_title, default=1)
+    
+    # Strategy: try sanitized (no special chars) first, then original, then short
     # Prefer SxxEyy format (Tsundere-Raws, Team Arcedo)
-    q.append(f"{cleaned} S{s:02d}E{int(episode):02d}")
-    q.append(f"{cleaned} S{s:02d}E{int(episode):02d} VOSTFR")
+    q.append(f"{sanitized} S{s:02d}E{int(episode):02d}")
+    q.append(f"{sanitized} S{s:02d}E{int(episode):02d} VOSTFR")
+    
+    # If title was shortened, try short version
+    if shortened != sanitized:
+        q.append(f"{shortened} S{s:02d}E{int(episode):02d}")
+        q.append(f"{shortened} S{s:02d}E{int(episode):02d} VOSTFR")
+    
     # Fallback E## (some groups)
-    q.append(f"{cleaned} E{int(episode):02d}")
-    q.append(f"{cleaned} E{int(episode):02d} VOSTFR")
+    q.append(f"{sanitized} E{int(episode):02d}")
+    q.append(f"{sanitized} E{int(episode):02d} VOSTFR")
+    
+    # Try original cleaned title as last resort
+    if cleaned != sanitized:
+        q.append(f"{cleaned} S{s:02d}E{int(episode):02d}")
+        q.append(f"{cleaned} E{int(episode):02d}")
+    
     # Ensure uniqueness, preserve order
     seen = set()
     out: List[str] = []
