@@ -153,8 +153,12 @@ def score_release(parsed: Dict, preferred: Optional[Dict]) -> int:
     # Language
     lang = (parsed.get('language') or '').upper()
     pref_lang = (preferred.get('language') or '').upper()
-    if pref_lang and pref_lang in lang:
-        score += 50
+    if pref_lang:
+        if pref_lang in lang:
+            score += 50
+        # MULTI releases contain all languages, give them a good score too
+        elif lang == 'MULTI':
+            score += 40
     # Quality
     qualities = preferred.get('qualities') or []
     if parsed.get('quality') in qualities:

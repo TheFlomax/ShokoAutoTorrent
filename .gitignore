@@ -44,7 +44,6 @@ swagger.json
 *-info.txt
 *-serveur.txt
 manual_test.py
-WARP.md
 
 # Docker (keep in repo but ignore runtime files)
 cache/

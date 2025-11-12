@@ -69,6 +69,32 @@ class ShokoClient:
             params['page'] = page + 1
         return results
 
+    def get_episode_details(self, episode_id: int, include_data_from: Optional[List[str]] = None) -> Optional[Dict]:
+        """Get detailed episode info including metadata from AniDB/TmDB.
+        
+        Args:
+            episode_id: Shoko episode ID
+            include_data_from: List of data sources (e.g., ['AniDB', 'TmDB'])
+        
+        Returns:
+            Episode details dict or None if not found
+        """
+        params = {
+            'includeFiles': 'false',
+            'includeMediaInfo': 'false',
+            'includeAbsolutePaths': 'false',
+            'includeXRefs': 'false',
+        }
+        if include_data_from:
+            for src in include_data_from:
+                params.setdefault('includeDataFrom', []).append(src)
+        try:
+            r = self._get(f'Episode/{episode_id}', params=params)
+            return r.json()
+        except Exception as e:
+            self.logger.warning(f"Failed to fetch episode {episode_id} details: {e}")
+            return None
+
     def update_series_stats(self) -> None:
         """Queue a job on Shoko to update all series stats and group filters."""
         r = self._get('Action/UpdateSeriesStats', params={})

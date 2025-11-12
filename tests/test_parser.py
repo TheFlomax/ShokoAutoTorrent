@@ -1,6 +1,6 @@
 import pytest
 
-from modules.parser import parse_release_title, build_queries_for_episode, sanitize_title_for_nyaa
+from modules.parser import parse_release_title, build_queries_for_episode, sanitize_title_for_nyaa, score_release
 
 
 def test_parse_release_title_main_pattern():
@@ -55,3 +55,38 @@ def test_build_queries_for_hyphenated_title():
     # First query should preserve the hyphen
     assert "Twisted-Wonderland" in q[0]
     assert q[0] == "Disney Twisted-Wonderland The Animation S01E02"
+
+
+def test_parse_multi_language_release():
+    """Test that MULTI language releases are parsed correctly."""
+    title = "Disney Twisted-Wonderland The Animation S01E01 MULTi 1080p WEB H.264 AAC -Tsundere-Raws (DSNP)"
+    p = parse_release_title(title)
+    assert p is not None
+    assert p['title'] == 'Disney Twisted-Wonderland The Animation'
+    assert p['season'] == 1
+    assert p['episode'] == 1
+    assert p['language'].upper() == 'MULTI'
+    assert p['quality'] == '1080p'
+    assert p['source'] == 'WEB'
+    assert p['provider'] == 'DSNP'
+
+
+def test_multi_language_scoring():
+    """Test that MULTI releases get appropriate scores with language preferences."""
+    parsed_multi = {'language': 'MULTi', 'quality': '1080p'}
+    parsed_vostfr = {'language': 'VOSTFR', 'quality': '1080p'}
+    parsed_vf = {'language': 'VF', 'quality': '1080p'}
+    
+    preferred = {'language': 'VOSTFR', 'qualities': ['1080p', '720p']}
+    
+    # VOSTFR should score highest (50 for exact match + 20 for quality)
+    score_vostfr = score_release(parsed_vostfr, preferred)
+    # MULTI should score well but slightly less (40 for MULTI + 20 for quality)
+    score_multi = score_release(parsed_multi, preferred)
+    # VF should score lowest (only 20 for quality, no language match)
+    score_vf = score_release(parsed_vf, preferred)
+    
+    assert score_vostfr == 70  # 50 + 20
+    assert score_multi == 60   # 40 + 20
+    assert score_vf == 20      # 0 + 20
+    assert score_vostfr > score_multi > score_vf

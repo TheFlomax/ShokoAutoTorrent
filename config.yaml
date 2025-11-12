@@ -37,7 +37,7 @@ cache:
   ttl_hours: 24
 
 notify:
-  discord_webhook_url: null
+  discord_webhook_url: ${DISCORD_WEBHOOK_URL}  # Discord webhook for download notifications
 
 general:
   dry_run: ${DRY_RUN}

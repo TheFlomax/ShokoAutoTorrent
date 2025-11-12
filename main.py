@@ -13,6 +13,7 @@ import yaml
 from modules.shoko_client import ShokoClient
 from modules.nyaa_search import NyaaSearcher
 from modules.qbit_client import QbitClient
+from modules.discord_notifier import DiscordNotifier
 from modules.parser import build_queries_for_episode, infer_season_from_title
 from modules.cache import Cache
 from utils.logger import setup_logging
@@ -57,7 +58,7 @@ def ensure_cache_db(path: Path):
     path.parent.mkdir(parents=True, exist_ok=True)
 
 
-def run_cycle(cfg: dict, logger: logging.Logger, qbit: QbitClient, shoko: ShokoClient, nyaa: NyaaSearcher, cache: Cache, notifier: Notifier, max_items: int, early_exit: bool = True):
+def run_cycle(cfg: dict, logger: logging.Logger, qbit: QbitClient, shoko: ShokoClient, nyaa: NyaaSearcher, cache: Cache, notifier: Notifier, discord: DiscordNotifier, max_items: int, early_exit: bool = True):
     try:
         qbit.ensure_connected()
     except Exception as e:
@@ -169,6 +170,19 @@ def run_cycle(cfg: dict, logger: logging.Logger, qbit: QbitClient, shoko: ShokoC
             qbit.add_magnet(magnet, save_path=save_path, category=category, tags=tags)
             cache.mark_episode_downloaded(shoko_ep_id, shoko_series_id, magnet, title)
             added_count += 1
+            
+            # Send Discord notification with episode details
+            try:
+                episode_details = shoko.get_episode_details(shoko_ep_id, include_data_from=["AniDB", "TmDB"])
+                discord.notify_download(
+                    series_title=series_title,
+                    season=s_for_cat,
+                    episode=int(ep_num),
+                    release_title=title,
+                    episode_details=episode_details
+                )
+            except Exception as discord_err:
+                logger.warning(t("log.discord_notification_failed"), discord_err)
         except Exception as e:
             logger.error(t("log.qbit_add_fail"), e)
             notifier.notify_error(t("notify.qbit_add_fail_title", title=title), str(e))
@@ -249,6 +263,11 @@ def main():
     cache = Cache(cache_path, ttl_hours=int(cfg.get("cache", {}).get("ttl_hours", 24)))
 
     notifier = Notifier(cfg.get("notify", {}))
+    
+    discord = DiscordNotifier(
+        webhook_url=cfg.get("notify", {}).get("discord_webhook_url"),
+        dry_run=dry_run
+    )
 
     shoko = ShokoClient(
         base_url=cfg["shoko"]["base_url"],
@@ -277,7 +296,7 @@ def main():
         while True:
             start_ts = int(time.time())
             try:
-                run_cycle(cfg, logger, qbit, shoko, nyaa, cache, notifier, max_items=max_items, early_exit=early_exit)
+                run_cycle(cfg, logger, qbit, shoko, nyaa, cache, notifier, discord, max_items=max_items, early_exit=early_exit)
             except Exception as e:
                 logger.exception(t("log.cycle_error"), e)
                 notifier.notify_error(t("notify.cycle_error_title"), str(e))

@@ -18,6 +18,7 @@ Automates searching and downloading missing episodes from Shoko to qBittorrent, 
 - 🌍 **Multilingual**: Support for French and English output
 - 🏷️ **Organized Downloads**: Automatic categorization and tagging in qBittorrent
 - 🛡️ **Dry-Run Mode**: Test your configuration safely before actual downloads
+- 📢 **Discord Notifications**: Rich embeds with episode metadata (poster, synopsis, episode title)
 
 ## Prerequisites
 - Requires Shoko Server to provide the API. Not affiliated with the Shoko project.
@@ -60,6 +61,7 @@ volumes:
   - SHOKO_URL, SHOKO_API_KEY
   - QBIT_URL, QBIT_USERNAME, QBIT_PASSWORD
   - SAVE_ROOT, DRY_RUN, EARLY_EXIT, SCHEDULE_INTERVAL_HOURS
+  - DISCORD_WEBHOOK_URL (optional) — Discord webhook URL for download notifications
   - SHOKO_UPDATE_SERIES_STATS (default: true) — run Shoko /Action/UpdateSeriesStats at the start of each cycle
   - SHOKO_UPDATE_WAIT_SECONDS (default: 20) — wait time after requesting the update
 - If your qBittorrent uses an invalid HTTPS cert, set `qbittorrent.verify_cert: false` and/or `qbittorrent.prefer_http: true` in config.yaml.

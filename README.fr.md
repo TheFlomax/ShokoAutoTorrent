@@ -18,6 +18,7 @@ Automatise la recherche et le téléchargement d'épisodes manquants depuis Shok
 - 🌍 **Multilingue**: Support pour les sorties en français et anglais
 - 🏷️ **Téléchargements Organisés**: Catégorisation et tagging automatiques dans qBittorrent
 - 🛡️ **Mode Dry-Run**: Testez votre configuration en toute sécurité avant les vrais téléchargements
+- 📢 **Notifications Discord**: Embeds riches avec métadonnées d'épisode (poster, synopsis, titre de l'épisode)
 
 ## Prérequis
 - Requiert Shoko Server pour fournir l’API. Projet non affilié à Shoko.
@@ -64,6 +65,7 @@ volumes:
   - SHOKO_URL, SHOKO_API_KEY
   - QBIT_URL, QBIT_USERNAME, QBIT_PASSWORD
   - SAVE_ROOT, DRY_RUN, EARLY_EXIT, SCHEDULE_INTERVAL_HOURS
+  - DISCORD_WEBHOOK_URL (optionnel) — URL du webhook Discord pour les notifications de téléchargement
   - SHOKO_UPDATE_SERIES_STATS (défaut : true) — exécute `/Action/UpdateSeriesStats` au début de chaque cycle
   - SHOKO_UPDATE_WAIT_SECONDS (défaut : 20) — durée d’attente après la demande de mise à jour
 - Si votre qBittorrent a un certificat HTTPS invalide, mettez `qbittorrent.verify_cert: false` et/ou `qbittorrent.prefer_http: true` dans config.yaml.

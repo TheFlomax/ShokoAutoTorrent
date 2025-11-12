@@ -110,7 +110,9 @@ class NyaaSearcher:
                     continue
                 # Basic language/source filter
                 pref_lang = (self.preferred or {}).get('language')
-                if pref_lang and parsed.get('language') and pref_lang.lower() not in parsed['language'].lower():
+                parsed_lang = parsed.get('language')
+                # MULTI releases contain all languages, so always accept them
+                if pref_lang and parsed_lang and parsed_lang.upper() != 'MULTI' and pref_lang.lower() not in parsed_lang.lower():
                     continue
                 # Score
                 sc = score_release(parsed, self.preferred)
