@@ -29,11 +29,13 @@ def normalize_series_title(series_title: str) -> str:
 def sanitize_title_for_nyaa(title: str) -> str:
     """
     Remove special characters that are often stripped by Nyaa uploaders.
-    Keeps alphanumeric, spaces, and common safe chars.
+    Keeps alphanumeric, spaces, hyphens within words, and common safe chars.
     """
-    # Remove common punctuation that uploaders strip: : ! , ? ' " . -
-    # but keep spaces and alphanumeric
-    sanitized = re.sub(r"[!?:,'\".-]", "", title)
+    # Remove common punctuation that uploaders strip: : ! , ? ' " .
+    # Keep hyphens within words (like Twisted-Wonderland). Remove only hyphens used as separators (e.g., " - ").
+    sanitized = re.sub(r"[!?:,'\".]", "", title)
+    # Remove hyphens only when surrounded by spaces (as separators)
+    sanitized = re.sub(r"\s+-\s+", " ", sanitized)
     # Collapse multiple spaces to single space
     sanitized = re.sub(r"\s+", " ", sanitized).strip()
     return sanitized
