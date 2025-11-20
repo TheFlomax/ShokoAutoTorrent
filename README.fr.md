@@ -48,13 +48,16 @@ Compose minimal
 services:
   shoko-auto-torrent:
     image: ghcr.io/theflomax/shokoautotorrent:latest
-    container_name: shoko-auto-torrent
+    container_name: shoko-at
     restart: unless-stopped
     env_file: .env
     volumes:
       - config:/app/config
-    # Pour éditer un fichier local à la place du volume nommé:
-    #  - ./config.yaml:/app/config/config.yaml:ro
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 volumes:
   config:
