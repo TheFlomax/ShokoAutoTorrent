@@ -70,8 +70,19 @@ def run_cycle(cfg: dict, logger: logging.Logger, qbit: QbitClient, shoko: ShokoC
             logger.warning(t("log.qbit_not_connected_dryrun"), e)
 
     # Request Shoko to update series stats and wait a bit to ensure fresh data (configurable)
-    update_enabled = to_bool(cfg.get("general", {}).get("shoko_update_series_stats", None), default=True)
-    wait_raw = cfg.get("general", {}).get("shoko_update_wait_seconds", None)
+    # Prioritize environment variables over config file to prevent stale volume issues
+    update_enabled_env = os.environ.get("SHOKO_UPDATE_SERIES_STATS")
+    if update_enabled_env is not None:
+        update_enabled = to_bool(update_enabled_env, default=True)
+    else:
+        update_enabled = to_bool(cfg.get("general", {}).get("shoko_update_series_stats", None), default=True)
+    
+    wait_raw_env = os.environ.get("SHOKO_UPDATE_WAIT_SECONDS")
+    if wait_raw_env is not None:
+        wait_raw = wait_raw_env
+    else:
+        wait_raw = cfg.get("general", {}).get("shoko_update_wait_seconds", None)
+    
     try:
         wait_seconds = int(str(wait_raw).strip()) if str(wait_raw).strip() != "" else 20
     except Exception:
