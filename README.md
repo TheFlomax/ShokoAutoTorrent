@@ -104,6 +104,12 @@ docker compose run --rm --user root shoko-auto-torrent \
 - Title parsing pattern: `[Title] S##E## VOSTFR 1080p WEB … -Tsundere-Raws (CR)`
 - SQLite cache avoids repeated searches
 
+## Documentation
+
+- [Docker Deployment Guide](docs/DOCKER.md)
+- [Discord Notifications](docs/DISCORD_NOTIFICATIONS.md)
+- [Developer Guide (WARP)](docs/WARP.md)
+
 ---
 
 ## Disclaimer

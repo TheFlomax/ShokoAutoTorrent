@@ -1,6 +1,6 @@
 # Guide de déploiement Docker (avancé)
 
-Pour l'installation, l'exécution (Make/Compose) et la configuration de base, voir README.md (sections "Installation" et "Utilisation"). Ce document se concentre sur les points avancés et le dépannage, afin d'éviter les répétitions.
+Pour l'installation, l'exécution (Make/Compose) et la configuration de base, voir [README.md](../README.md) (sections "Installation" et "Utilisation"). Ce document se concentre sur les points avancés et le dépannage, afin d'éviter les répétitions.
 
 ## Mode dry-run
 

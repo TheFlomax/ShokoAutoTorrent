@@ -108,6 +108,12 @@ docker compose run --rm --user root shoko-auto-torrent \
 - Parsing des titres basé sur: `[Titre] S##E## VOSTFR 1080p WEB … -Tsundere-Raws (CR)`
 - Cache SQLite pour éviter les recherches répétées
 
+## Documentation
+
+- [Guide de déploiement Docker](docs/DOCKER.md)
+- [Notifications Discord](docs/DISCORD_NOTIFICATIONS.md)
+- [Guide Développeur (WARP)](docs/WARP.md)
+
 ---
 
 ## Avertissement
