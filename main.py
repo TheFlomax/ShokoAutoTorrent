@@ -9,6 +9,7 @@ import time
 from pathlib import Path
 
 import yaml
+from dotenv import load_dotenv
 
 from modules.shoko_client import ShokoClient
 from modules.nyaa_search import NyaaSearcher
@@ -195,6 +196,7 @@ def run_cycle(cfg: dict, logger: logging.Logger, qbit: QbitClient, shoko: ShokoC
 
 
 def main():
+    load_dotenv()
     # First pass parser to get --config and --lang early
     pre = argparse.ArgumentParser(add_help=False)
     pre.add_argument("--config", default="config.yaml")
